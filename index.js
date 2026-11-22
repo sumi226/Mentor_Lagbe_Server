@@ -1343,6 +1343,46 @@ app.patch("/api/users/profile", requireAuth, async (req, res) => {
   }
 });
 
+// POST /api/upload/imgbb — ImgBB image upload proxy
+app.post("/api/upload/imgbb", async (req, res) => {
+  try {
+    const { image } = req.body || {};
+    if (!image) {
+      return res.status(400).json({ error: "No image data provided" });
+    }
+
+    const apiKey =
+      process.env.IMGBB_API_KEY || "87f61c390a3ea8cb6a2b85e0534be01c";
+
+    let imageUrl = null;
+    try {
+      const formData = new FormData();
+      formData.append("image", image);
+
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data?.success && (data?.data?.display_url || data?.data?.url)) {
+        imageUrl = data.data.display_url || data.data.url;
+      }
+    } catch (e) {
+      console.warn("[ImgBB upload] error:", e.message);
+    }
+
+    if (imageUrl) {
+      return res.json({ url: imageUrl, source: "imgbb" });
+    }
+
+    return res.json({ url: image, source: "direct" });
+  } catch (err) {
+    console.error("[POST /api/upload/imgbb] Error:", err);
+    res.status(500).json({ error: "Failed to upload image" });
+  }
+});
+
 // ==========================================
 // START SERVER
 // ==========================================
