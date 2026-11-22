@@ -27,22 +27,6 @@ This repository contains the backend REST API server for the **MentorLagbe** tut
 
 Create a `.env` file in the root of `mentor_lagbe_server` with the following variables:
 
-### 3. Installation
-
-```bash
-npm install
-```
-
-### 4. Running the Server
-
-```bash
-# Development (with auto-reload via nodemon)
-npm run dev
-
-# Production
-npm start
-```
-
 The server will start at `http://localhost:5000`.
 
 ---
