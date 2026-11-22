@@ -1290,25 +1290,31 @@ const QUICK_ACCOUNTS = {
   },
 };
 
-// POST /api/auth/quick-login — Prepares quick login user
+// POST /api/auth/quick-login — Prepares quick login user (demo or registered user)
 app.post("/api/auth/quick-login", async (req, res) => {
   try {
-    const { role = "student" } = req.body || {};
+    const { role = "student", email, password, name } = req.body || {};
     const key = String(role).toLowerCase();
-    const config = QUICK_ACCOUNTS[key] || QUICK_ACCOUNTS.student;
+    const defaultConfig = QUICK_ACCOUNTS[key] || QUICK_ACCOUNTS.student;
+
+    const targetEmail = email ? String(email).trim() : defaultConfig.email;
+    const targetName = name ? String(name).trim() : (email ? String(email).split("@")[0] : defaultConfig.name);
+    const targetRole = role ? String(role).toLowerCase() : defaultConfig.role;
+    const targetPass = password ? String(password) : defaultConfig.password;
+    const targetPlan = targetRole === "admin" ? "pro" : "free";
 
     const database = await connectDB();
     await database.collection("users").updateOne(
-      { email: config.email },
+      { email: targetEmail },
       {
         $set: {
-          role: config.role,
-          plan: config.plan,
+          role: targetRole,
+          plan: targetPlan,
           updatedAt: new Date(),
         },
         $setOnInsert: {
-          name: config.name,
-          email: config.email,
+          name: targetName,
+          email: targetEmail,
           createdAt: new Date(),
         },
       },
@@ -1317,9 +1323,9 @@ app.post("/api/auth/quick-login", async (req, res) => {
 
     res.json({
       ok: true,
-      email: config.email,
-      password: config.password,
-      role: config.role,
+      email: targetEmail,
+      password: targetPass,
+      role: targetRole,
     });
   } catch (err) {
     console.error("[POST /api/auth/quick-login] Error:", err);
