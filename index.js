@@ -1270,18 +1270,21 @@ const QUICK_ACCOUNTS = {
   admin: {
     email: "admin@mentorlagbe.com",
     name: "MentorLagbe Admin",
+    password: "MentorLagbe123!",
     role: "admin",
     plan: "pro",
   },
   tutor: {
     email: "tutor@mentorlagbe.com",
     name: "MentorLagbe Tutor",
+    password: "MentorLagbe123!",
     role: "tutor",
     plan: "free",
   },
   student: {
     email: "student@mentorlagbe.com",
     name: "MentorLagbe Student",
+    password: "MentorLagbe123!",
     role: "student",
     plan: "free",
   },
@@ -1312,7 +1315,12 @@ app.post("/api/auth/quick-login", async (req, res) => {
       { upsert: true }
     );
 
-    res.json({ ok: true, email: config.email, role: config.role });
+    res.json({
+      ok: true,
+      email: config.email,
+      password: config.password,
+      role: config.role,
+    });
   } catch (err) {
     console.error("[POST /api/auth/quick-login] Error:", err);
     res.status(500).json({ error: "Failed to prepare quick login" });
